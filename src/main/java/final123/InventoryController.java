@@ -23,100 +23,173 @@ public class InventoryController {
     @Autowired
     Connection123 connect;
 
-    @RequestMapping(value = "/category", method = RequestMethod.GET)
-    public String showCategoryPage(ModelMap model, @RequestParam(defaultValue = "") String id)
-            throws ClassNotFoundException, SQLException{
-        service1 = new DatabaseService(connect.connect());
-        model.addAttribute("todos", service1.display());
-
-        List<Category> filteredTodos = new ArrayList<Category>();
-        filteredTodos = (List) model.get("todos");
-
-        model.put("id", filteredTodos.get(0).getCatCode());
-        model.put("desc", filteredTodos.get(0).getCatDesc());
-        return "category";
-    }
-
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public String showCategoryPage2(ModelMap model) throws ClassNotFoundException, SQLException {
+    public String showCategoryPage(ModelMap model) throws SQLException, ClassNotFoundException {
         service1 = new DatabaseService(connect.connect());
         model.addAttribute("todos", service1.display());
+        List<Category> list = service1.display();
 
-        List<Category> filteredTodos = new ArrayList<Category>();
-        filteredTodos = (List) model.get("todos");
+        model.put("id", list.get(0).getCatCode());
+        model.put("desc", list.get(0).getCatDesc());
 
-        model.put("id", filteredTodos.get(0).getCatCode());
-        model.put("desc", filteredTodos.get(0).getCatDesc());
         return "category";
     }
 
     @RequestMapping(value = "/add-todo", method = RequestMethod.GET)
-    public String showTodoPage(){
+    public String addTodoPage() {
         return "catSer";
     }
 
     @RequestMapping(value = "/add-todo", method = RequestMethod.POST)
-    public String addTodo(ModelMap model, @RequestParam String catCode, @RequestParam String catDesc)
-            throws ClassNotFoundException, SQLException {
-        if (!((service1.search(catCode)) == null)){
+    public String addTodo(ModelMap model, @RequestParam String catCode, @RequestParam String catDesc) throws SQLException, ClassNotFoundException {
+
+        if (!(service1.search(catCode)==null)){
             model.put("errorMessage", "Record Existing");
-            return "redirect:/category";
         }
 
         Category cc = new Category(catCode, catDesc);
         service1.add(cc);
-        model.clear();
-        return "redirect:/category";
+        return "redirect:/";
     }
 
     @RequestMapping(value = "/update-todo", method = RequestMethod.GET)
-    public String showUpdateTodoPage(ModelMap model, @RequestParam(defaultValue = "") String id)
-            throws ClassNotFoundException, SQLException{
+    public String updateTodoPage(ModelMap model, @RequestParam(defaultValue = "") String id) throws SQLException, ClassNotFoundException {
         model.put("id", id);
         Category cc = service1.search(id);
-        model.put("id", cc.getCatCode());
         model.put("desc", cc.getCatDesc());
         return "cateDit";
     }
 
     @RequestMapping(value = "/update-todo", method = RequestMethod.POST)
-    public String showUpdate(ModelMap model, @RequestParam String catCode, @RequestParam String catDesc)
-            throws ClassNotFoundException, SQLException {
-        //get the old catCode
-        String iid = (String) model.get("id");
+    public String updateTodo(ModelMap model, @RequestParam String catCode, @RequestParam String catDesc) throws SQLException, ClassNotFoundException {
+        String oldId = (String) model.get("id");
         Category cc = new Category(catCode, catDesc);
-        service1.edit(cc, iid);
+        service1.edit(cc, oldId);
         return "redirect:/";
     }
 
     @RequestMapping(value = "/delete-todo", method = RequestMethod.GET)
     public String deleteTodo(ModelMap model, @RequestParam String id) throws ClassNotFoundException, SQLException{
         service1.delete(id);
-        model.clear();
         return "redirect:/";
     }
 
-    @RequestMapping(value = "/see-todo", method = RequestMethod.GET)
-    public String seeTodo(ModelMap model, @RequestParam(defaultValue = "") String id)
-            throws ClassNotFoundException, SQLException{
+    @RequestMapping(value="/see-todo", method = RequestMethod.GET)
+    public String seeTodoPage(ModelMap model,  @RequestParam (defaultValue = "") String id) throws SQLException, ClassNotFoundException {
         model.put("id", id);
-        service1 = new DatabaseService(connect.connect());
-        String iid = (String) model.get("id");
-        List<Items> itemsList = new ArrayList<>();
-        itemsList = service1.display2(iid);
-
+        model.put("desc", id);
+        List<Items> itemsList = service1.display2(id);
         if (itemsList.size()==0){
-            model.put("errorMessage", "There are no items for this category");
+            model.put("errorMessage=", "No items found");
             return "redirect:/";
         }
-
-        model.put("desc", iid);
-        model.addAttribute("todos1", service1.display2(iid));
+        model.addAttribute("todos1", itemsList);
         return "items";
     }
 
     @RequestMapping(value = "/see-todo", method = RequestMethod.POST)
-    public String seeTodo2(ModelMap model) throws ClassNotFoundException, SQLException {
+    public String seeTodo(){
         return "redirect:/";
     }
+//    DatabaseService service1;
+//
+//    @Autowired
+//    CategoryService service;
+//
+//    @Autowired
+//    Connection123 connect;
+////
+////    @RequestMapping(value = "/category", method = RequestMethod.GET)
+////    public String showCategoryPage(ModelMap model, @RequestParam(defaultValue = "") String id)
+////            throws ClassNotFoundException, SQLException{
+////        service1 = new DatabaseService(connect.connect());
+////        model.addAttribute("todos", service1.display());
+////
+////        List<Category> filteredTodos = new ArrayList<Category>();
+////        filteredTodos = (List) model.get("todos");
+////
+////        model.put("id", filteredTodos.get(0).getCatCode());
+////        model.put("desc", filteredTodos.get(0).getCatDesc());
+////        return "category";
+////    }
+//
+//    @RequestMapping(value = "/", method = RequestMethod.GET)
+//    public String showCategoryPage2(ModelMap model) throws ClassNotFoundException, SQLException {
+//        service1 = new DatabaseService(connect.connect());
+//        model.addAttribute("todos", service1.display());
+//
+//        List<Category> filteredTodos = (List) model.get("todos");
+//
+//        model.put("id", filteredTodos.get(0).getCatCode());
+//        model.put("desc", filteredTodos.get(0).getCatDesc());
+//        return "category";
+//    }
+//
+//    @RequestMapping(value = "/add-todo", method = RequestMethod.GET)
+//    public String showTodoPage(){
+//        return "catSer";
+//    }
+//
+//    @RequestMapping(value = "/add-todo", method = RequestMethod.POST)
+//    public String addTodo(ModelMap model, @RequestParam String catCode, @RequestParam String catDesc)
+//            throws ClassNotFoundException, SQLException {
+//        if (!((service1.search(catCode)) == null)){
+//            model.put("errorMessage", "Record Existing");
+//            return "redirect:/";
+//        }
+//
+//        Category cc = new Category(catCode, catDesc);
+//        service1.add(cc);
+//        model.clear();
+//        return "redirect:/";
+//    }
+//
+//    @RequestMapping(value = "/update-todo", method = RequestMethod.GET)
+//    public String showUpdateTodoPage(ModelMap model, @RequestParam(defaultValue = "") String id)
+//            throws ClassNotFoundException, SQLException{
+//        model.put("id", id);
+//        Category cc = service1.search(id);
+//        model.put("id", cc.getCatCode());
+//        model.put("desc", cc.getCatDesc());
+//        return "cateDit";
+//    }
+//
+//    @RequestMapping(value = "/update-todo", method = RequestMethod.POST)
+//    public String showUpdate(ModelMap model, @RequestParam String catCode, @RequestParam String catDesc)
+//            throws ClassNotFoundException, SQLException {
+//        //get the old catCode
+//        String iid = (String) model.get("id");
+//        Category cc = new Category(catCode, catDesc);
+//        service1.edit(cc, iid);
+//        return "redirect:/";
+//    }
+//
+//    @RequestMapping(value = "/delete-todo", method = RequestMethod.GET)
+//    public String deleteTodo(ModelMap model, @RequestParam String id) throws ClassNotFoundException, SQLException{
+//        service1.delete(id);
+//        model.clear();
+//        return "redirect:/";
+//    }
+//
+//    @RequestMapping(value = "/see-todo", method = RequestMethod.GET)
+//    public String seeTodo(ModelMap model, @RequestParam(defaultValue = "") String id)
+//            throws ClassNotFoundException, SQLException{
+//        model.put("id", id);
+//        String iid = (String) model.get("id");
+//        List<Items> itemsList = service1.display2(iid);
+//
+//        if (itemsList.size()==0){
+//            model.put("errorMessage", "There are no items for this category");
+//            return "redirect:/";
+//        }
+//
+//        model.put("desc", iid);
+//        model.addAttribute("todos1", itemsList);
+//        return "items";
+//    }
+//
+//    @RequestMapping(value = "/see-todo", method = RequestMethod.POST)
+//    public String seeTodo2(ModelMap model) throws ClassNotFoundException, SQLException {
+//        return "redirect:/";
+//    }
 }

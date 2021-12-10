@@ -15,15 +15,13 @@
         <fieldset class="form-group">
             <label> Category code :</label>
             <input name="catCode" type="text" class="form-control" required />
-
         </fieldset>
-
 
         <fieldset class="form-group">
             <label> Category description :</label>
             <input name="catDesc" type="text" class="form-control" required />
-
         </fieldset>
+
         <input class="btn btn-success" type="submit" value="Submit" />
     </form>
 
